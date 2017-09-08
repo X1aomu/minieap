@@ -174,11 +174,10 @@ RESULT parse_rjv3_buf_to_prop_list(LIST_ELEMENT** list, uint8_t* buf, int buflen
 
             if (memcmp(_tmp_prop->header2.magic, _magic, sizeof(_magic)) == 0) {
                 /* Valid */
-                if (_tmp_prop->header2.type == 0) {
-                    /* 0x0 prop's len does not include HEADER2 */
-                    _content_len = _tmp_prop->header2.len;
-                } else if (_tmp_prop->header2.type == 1) {
-                    /* Type 0x1 means there is no length info, we have to search for next 00 00 13 11 */
+                if (_tmp_prop->header2.type == 0 || _tmp_prop->header2.type == 1) {
+                    /* Type 0x0 and 0x1 means there is no accurate length info,
+                     * we have to search for next 00 00 13 11
+                     */
                     uint8_t* _next_magic = find_byte_pattern(_magic, sizeof(_magic),
                                                               buf + _read_len, buflen - _read_len);
                     _content_len = _next_magic ? (_next_magic - (buf + _read_len)) : buflen - _read_len;
